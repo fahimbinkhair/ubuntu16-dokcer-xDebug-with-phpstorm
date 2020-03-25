@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  ubuntu1604:
+    build:
+      context: ./ubuntu
+    volumes:
+      - ../:/var/optimus
+      - /etc/optimus/awsConfigForPHPUnit/.aws:/home/optimus/.aws
+      - /etc/optimus/optimus.env:/etc/optimus/optimus.env
+    ports:
+      - "8080:80"
+      - "443:443"
+    environment:
+      PHP_IDE_CONFIG: serverName=optimus.di
+    tty: true
+  angular:
+    container_name: angular
+    build:
+      context: ./angular
+      dockerfile: Dockerfile
+    volumes:
+      - '../frontend:/var/optimus/frontend'
+    ports:
+      - '4201:4200'
+    command: >
+      bash -c "cd /var/optimus/frontend && npm install && npm install -g @angular/cli@6 && ng serve --host 0.0.0.0"
+  mysql:
+    image: mysql:5.7.26
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: optimus
+      MYSQL_USER: optimusu
+      MYSQL_PASSWORD: optimusp
+    ports:
+      - "42333:3306"
